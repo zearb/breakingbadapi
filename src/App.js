@@ -1,57 +1,93 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import getCharacters from './helpers/getCharacters';
+import { Grid, Card, CardHeader, CardMedia, Typography, makeStyles,createMuiTheme, ThemeProvider  } from '@material-ui/core';
+
+const theme = createMuiTheme();
+
+const useStyles = makeStyles({
+  root: {
+    maxWidth: 300,
+    marginBottom: 24
+  },
+  media: {
+    height: 450,
+    objectFit: 'auto'
+  }
+});
 
 function App() {
 
-  const [state, setState] = useState({data:null,loading:true,error:null});
+  const [state, setState] = useState({data:null,loading:true,error:null});  
+    
+  useEffect(() => {
 
-  const url = `https://www.breakingbadapi.com/api/characters`;
-  
-  fetch(url)
-    .then( resp => resp.json() )
+    getCharacters()
     .then( data => {
-      
       setState( {
-        data:data,
+        data,
         loading:false,
         error:null
       } );
-
     } )
-    .catch( () => {
 
-      setState( {
-        data:null,
-        loading:false,
-        error:'No se pudo cargar'
-      } );
+  }, []);
 
-    } );
+  const classes = useStyles();
 
-  // console.log(state.data)
-
-  return (
-    <div className="App container pt-4">
-      <h1 className="text-center mb-4">App de BreakingBadApi</h1>
-        <div className="cont_cards">
-        { 
-          state.data &&
-          
+  return( 
+    <div>
+      <ThemeProvider theme={theme}>
+        <Typography  variant="h1" component="h1" align="center" gutterBottom>
+          Breaking Bad Api
+        </Typography>
+      </ThemeProvider>      
+      <Grid
+        container    
+        direction="row"
+        justify="center"
+        alignItems="center"
+      >
+        
+        {
+          state.data && 
           state.data.map( item => 
-            <div className="card" key={item.char_id}>
-              <img src={item.img} className="card-img-top" alt={item.name} />
-              <div className="card-body">
-                <h5 className="card-title">{item.name}</h5>
-                <p className="card-text">{item.nickname}</p>
-              </div>
-            </div>
-          
-          )
+
+            <Grid
+              item         
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+              xs={12} sm={6} md={4} lg={3} xl={2}
+              key={item.char_id}
+            >
+              <Card className={classes.root}>
+                  
+                  <CardMedia
+                    component="img"
+                    className={classes.media}
+                    image={item.img}
+                    title={item.name}
+                    alt={item.name}
+                  />
+
+                  <CardHeader
+                    title={item.name}
+                    subheader={item.nickname}
+                  />
+
+              </Card>
+            </Grid>
+            
+            )
         }
-        </div>
-      
-      
+
+        
+
+      </Grid>
     </div>
-  );
+   );
+
 }
 
 export default App;
